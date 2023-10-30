@@ -1,6 +1,5 @@
 // external dependencies
 const createError = require("http-errors");
-const fs = require("fs").promises;
 
 // internal dependencies
 const User = require("../models/userModel");
@@ -97,4 +96,31 @@ const deleteUserById = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUserById, deleteUserById };
+const processRegister = async (req, res, next) => {
+  try {
+    const { name, email, password, phone, address } = req.body;
+
+    const userExists = await User.exists({ email: email });
+
+    if (userExists) {
+      throw createError(409, "User email already exist, try another one.");
+    }
+
+    const newUser = {
+      name,
+      email,
+      password,
+      phone,
+      address,
+    };
+    return successResponse(res, {
+      statusCode: 201,
+      message: "User was created successfully.",
+      payload: { newUser },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getUsers, getUserById, deleteUserById, processRegister };

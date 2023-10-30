@@ -5,8 +5,9 @@ const createError = require("http-errors");
 const User = require("../models/userModel");
 const { successResponse } = require("./responseController");
 const { findWithById } = require("../services/findItem");
-const { jwtActivationKey } = require("../secret");
+const { jwtActivationKey, clientURL } = require("../secret");
 const { createJSONWebToken } = require("../helper/jsonwebtoken");
+const { emailWithNodeMailer } = require("../helper/email");
 
 // router
 const getUsers = async (req, res, next) => {
@@ -98,6 +99,7 @@ const deleteUserById = async (req, res, next) => {
   }
 };
 
+// registration process
 const processRegister = async (req, res, next) => {
   try {
     const { name, email, password, phone, address } = req.body;
@@ -115,9 +117,31 @@ const processRegister = async (req, res, next) => {
       "10m"
     );
 
+    // prepare email
+    const emailData = {
+      email,
+      subject: "Account Activation Email",
+      html: `
+        <h2> Hello ${name} </h2>
+        <p> Please click here to 
+          <a href="${clientURL}/api/users/activate/${token}" target="_blank"> activate your account</a> link 
+        </p>
+      `,
+    };
+
+    // send email with nodemailer
+    try {
+      await emailWithNodeMailer(emailData);
+    } catch (error) {
+      // next(createError(500, "Failed to send verification email"));
+      console.log(error);
+      next(error);
+      return;
+    }
+
     return successResponse(res, {
-      statusCode: 201,
-      message: "User was created successfully.",
+      statusCode: 200,
+      message: `Please go to your ${email} for completing registration process.`,
       payload: { token },
     });
   } catch (error) {
@@ -125,4 +149,59 @@ const processRegister = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUserById, deleteUserById, processRegister };
+const activateUserAccount = async (req, res, next) => {
+  try {
+    const { name, email, password, phone, address } = req.body;
+
+    const userExists = await User.exists({ email: email });
+
+    if (userExists) {
+      throw createError(409, "User email already exist, try another one.");
+    }
+
+    // create jwt
+    const token = createJSONWebToken(
+      { name, email, password, phone, address },
+      jwtActivationKey,
+      "10m"
+    );
+
+    // prepare email
+    const emailData = {
+      email,
+      subject: "Account Activation Email",
+      html: `
+        <h2> Hello ${name} </h2>
+        <p> Please click here to 
+          <a href="${clientURL}/api/users/activate/${token}" target="_blank"> activate your account</a> link 
+        </p>
+      `,
+    };
+
+    // send email with nodemailer
+    try {
+      await emailWithNodeMailer(emailData);
+    } catch (error) {
+      // next(createError(500, "Failed to send verification email"));
+      console.log(error);
+      next(error);
+      return;
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Please go to your ${email} for completing registration process.`,
+      payload: { token },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getUsers,
+  getUserById,
+  deleteUserById,
+  processRegister,
+  activateUserAccount,
+};

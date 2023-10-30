@@ -8,8 +8,10 @@ const defaultImagePath =
 const mongodbURL =
   process.env.MONGODB_ATLAS_URL || "mongodb://localhost:27017/ecommerceMernDB";
 
+const jwtActivationKey = process.env.JWT_ACTIVATION_KEY;
 module.exports = {
   serverPort,
   mongodbURL,
   defaultImagePath,
+  jwtActivationKey,
 };

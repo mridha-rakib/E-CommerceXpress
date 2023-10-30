@@ -5,6 +5,8 @@ const createError = require("http-errors");
 const User = require("../models/userModel");
 const { successResponse } = require("./responseController");
 const { findWithById } = require("../services/findItem");
+const { jwtActivationKey } = require("../secret");
+const { createJSONWebToken } = require("../helper/jsonwebtoken");
 
 // router
 const getUsers = async (req, res, next) => {
@@ -106,17 +108,17 @@ const processRegister = async (req, res, next) => {
       throw createError(409, "User email already exist, try another one.");
     }
 
-    const newUser = {
-      name,
-      email,
-      password,
-      phone,
-      address,
-    };
+    // create jwt
+    const token = createJSONWebToken(
+      { name, email, password, phone, address },
+      jwtActivationKey,
+      "10m"
+    );
+
     return successResponse(res, {
       statusCode: 201,
       message: "User was created successfully.",
-      payload: { newUser },
+      payload: { token },
     });
   } catch (error) {
     next(error);

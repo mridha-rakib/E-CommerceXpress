@@ -13,10 +13,21 @@ const {
 
 const upload = require("../middlewares/uploadFile");
 
-userRouter.post("/process-register", upload.single("image"), processRegister);
+const { validateUserRegistration } = require("../validators/auth");
+const runValidation = require("../validators/index");
+
+userRouter.post(
+  "/process-register",
+  validateUserRegistration,
+  runValidation,
+  upload.single("image"),
+  processRegister
+);
 userRouter.post("/verify", activateUserAccount);
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUserById);
 userRouter.delete("/:id", deleteUserById);
 
 module.exports = userRouter;
+
+// runValidation,

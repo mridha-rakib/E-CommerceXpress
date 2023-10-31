@@ -32,4 +32,5 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   return errorResponse(res, { statusCode: err.status, message: err.message });
 });
+
 module.exports = app;

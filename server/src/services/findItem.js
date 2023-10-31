@@ -1,7 +1,7 @@
 const createError = require("http-errors");
 const mongoose = require("mongoose");
 
-const findWithById = async (Model, id, options = {}) => {
+const findWithId = async (Model, id, options = {}) => {
   try {
     const item = await Model.findById(id, options);
     if (!item) {
@@ -17,4 +17,4 @@ const findWithById = async (Model, id, options = {}) => {
   }
 };
 
-module.exports = { findWithById };
+module.exports = { findWithId };

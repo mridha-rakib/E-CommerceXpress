@@ -11,7 +11,9 @@ const {
   activateUserAccount,
 } = require("../controllers/userController");
 
-userRouter.post("/process-register", processRegister);
+const upload = require("../middlewares/uploadFile");
+
+userRouter.post("/process-register", upload.single("image"), processRegister);
 userRouter.post("/verify", activateUserAccount);
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUserById);

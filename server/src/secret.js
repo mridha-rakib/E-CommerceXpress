@@ -9,6 +9,7 @@ const mongodbURL =
   process.env.MONGODB_ATLAS_URL || "mongodb://localhost:27017/ecommerceMernDB";
 
 const jwtActivationKey = process.env.JWT_ACTIVATION_KEY;
+const jwtAccessKey = process.env.JWT_ACCESS_KEY;
 
 const smtpUsername = process.env.SMTP_USERNAME || "";
 const smtpPassword = process.env.SMTP_PASSWORD || "";
@@ -20,6 +21,7 @@ module.exports = {
   mongodbURL,
   defaultImagePath,
   jwtActivationKey,
+  jwtAccessKey,
   smtpUsername,
   smtpPassword,
   clientURL,

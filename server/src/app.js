@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const createError = require("http-errors");
 const xssClean = require("xss-clean");
@@ -13,6 +14,7 @@ const rateLimiter = rateLimit({
 const userRouter = require("./routers/userRouter");
 const seedRouter = require("./routers/seedRouter");
 const { errorResponse } = require("./controllers/responseController");
+const authRouter = require("./routers/authRouter");
 // app initialization
 const app = express();
 app.use(rateLimiter);
@@ -23,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // route handling
 app.use("/api/users", userRouter);
 app.use("/api/seed", seedRouter);
+app.use("/api/auth", authRouter);
 
 // error handling
 app.use((req, res, next) => {

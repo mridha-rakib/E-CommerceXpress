@@ -4,8 +4,9 @@ const authRouter = express.Router();
 
 // internal dependencies
 const runValidation = require("../validators");
-const { handleLogin } = require("../controllers/authControllers");
+const { handleLogin, handleLogout } = require("../controllers/authControllers");
 
 authRouter.post("/login", handleLogin);
+authRouter.post("/logout", handleLogout);
 
 module.exports = authRouter;

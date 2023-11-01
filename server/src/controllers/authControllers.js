@@ -28,8 +28,12 @@ const handleLogin = async (req, res, next) => {
       );
     }
 
-    const accessToken = createJSONWebToken({ email }, jwtAccessKey, "10m");
-    res.cookie("access_token", accessToken, {
+    const accessToken = createJSONWebToken(
+      { _id: user._id },
+      jwtAccessKey,
+      "10m"
+    );
+    res.cookie("accessToken", accessToken, {
       maxAge: 15 * 60 * 1000,
       httpOnly: true,
       secure: true,
@@ -46,4 +50,17 @@ const handleLogin = async (req, res, next) => {
   }
 };
 
-module.exports = { handleLogin };
+const handleLogout = async (req, res, next) => {
+  try {
+    res.clearCookie("accessToken");
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User logout successfully",
+      payload: {},
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { handleLogin, handleLogout };

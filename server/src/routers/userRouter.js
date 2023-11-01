@@ -16,6 +16,7 @@ const upload = require("../middlewares/uploadFile");
 
 const { validateUserRegistration } = require("../validators/auth");
 const runValidation = require("../validators/index");
+const { isLoggedIn } = require("../middlewares/auth");
 
 userRouter.post(
   "/process-register",
@@ -26,7 +27,7 @@ userRouter.post(
 );
 userRouter.post("/activate", activateUserAccount);
 userRouter.get("/", getUsers);
-userRouter.get("/:id", getUserById);
+userRouter.get("/:id", isLoggedIn, getUserById);
 userRouter.delete("/:id", deleteUserById);
 userRouter.put("/:id", upload.single("image"), updateUserById);
 

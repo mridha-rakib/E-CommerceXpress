@@ -1,6 +1,7 @@
 // external dependencies
 const createError = require("http-errors");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 // internal dependencies
 const User = require("../models/userModel");
@@ -263,6 +264,7 @@ const handleBanUserById = async (req, res, next) => {
     next(error);
   }
 };
+
 const handleUnbanUserById = async (req, res, next) => {
   try {
     const userId = req.params.id;
@@ -294,6 +296,39 @@ const handleUnbanUserById = async (req, res, next) => {
   }
 };
 
+const handleUpdatePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.params.id;
+    const user = await findWithId(User, userId);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch) {
+      throw createError(401, "Password didn't match");
+    }
+
+    const updatePassword = { $set: { password: newPassword } };
+    const updateOptions = { new: true };
+
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      updatePassword,
+      updateOptions
+    ).select("-password");
+    // Respond with a success message
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User password updated successfully",
+      payload: { updateUser },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -303,4 +338,5 @@ module.exports = {
   updateUserById,
   handleBanUserById,
   handleUnbanUserById,
+  handleUpdatePassword,
 };

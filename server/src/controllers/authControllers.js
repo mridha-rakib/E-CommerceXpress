@@ -41,10 +41,14 @@ const handleLogin = async (req, res, next) => {
       sameSite: "none",
     });
 
+    const userWithoutPass = await User.findOne({ email: email }).select(
+      "-password"
+    );
+
     return successResponse(res, {
       statusCode: 200,
       message: "User logged in successfully",
-      payload: {},
+      payload: { userWithoutPass },
     });
   } catch (error) {
     next(error);

@@ -79,11 +79,11 @@ const deleteUserById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const options = { password: 0 };
-    const user = await findWithById(User, id, options);
+    const user = await findWithId(User, id, options);
 
-    const userImagePath = user.image;
+    // const userImagePath = user.image; comment out for memory storage
 
-    deleteImage3(userImagePath);
+    // deleteImage3(userImagePath);
 
     await User.findByIdAndDelete({
       _id: id,
@@ -93,7 +93,7 @@ const deleteUserById = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: "User was delete successfully",
-      payload: { user },
+      payload: {},
     });
   } catch (error) {
     next(error);
@@ -236,6 +236,64 @@ const updateUserById = async (req, res, next) => {
   }
 };
 
+const handleBanUserById = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const options = { password: 0 };
+    await findWithId(User, userId, options);
+    const updates = { isBanned: true };
+    const updateOptions = { new: true, runValidators: true, context: "query" };
+
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      updateOptions
+    ).select("-password");
+
+    if (!updateUser) {
+      throw createError(400, "User with this id does not banned successfully");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User was banned successfully",
+      payload: {},
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const handleUnbanUserById = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const options = { password: 0 };
+    await findWithId(User, userId, options);
+    const updates = { isBanned: false };
+    const updateOptions = { new: true, runValidators: true, context: "query" };
+
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      updateOptions
+    ).select("-password");
+
+    if (!updateUser) {
+      throw createError(
+        400,
+        "User with this id does not unbanned successfully"
+      );
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User was unbanned successfully",
+      payload: { updateUser },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -243,4 +301,6 @@ module.exports = {
   processRegister,
   activateUserAccount,
   updateUserById,
+  handleBanUserById,
+  handleUnbanUserById,
 };

@@ -53,4 +53,4 @@ const validateUserLogin = [
     ),
 ];
 
-module.exports = { validateUserRegistration };
+module.exports = { validateUserRegistration, validateUserLogin };

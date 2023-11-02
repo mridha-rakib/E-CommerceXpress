@@ -13,7 +13,6 @@ const isLoggedIn = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(accessToken, jwtAccessKey);
-    console.log(decoded);
     if (!decoded) {
       throw createError(401, "Invalid access token, Login again.");
     }

@@ -14,8 +14,8 @@ const { emailWithNodeMailer } = require("../helper/email");
 const getUsers = async (req, res, next) => {
   try {
     const search = req.query.search || "";
-    const page = Number(req.query.page) || 4;
-    const limit = Number(req.query.limit) || 1;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 3;
 
     const searchRegExp = new RegExp(".*" + search + ".*", "i");
 

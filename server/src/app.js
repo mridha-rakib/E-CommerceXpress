@@ -17,10 +17,10 @@ const { errorResponse } = require("./controllers/responseController");
 const authRouter = require("./routers/authRouter");
 // app initialization
 const app = express();
+app.use(express.json());
 app.use(cookieParser());
 app.use(rateLimiter);
 app.use(morgan("dev"));
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // route handling

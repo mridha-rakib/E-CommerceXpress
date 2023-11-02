@@ -35,5 +35,22 @@ const validateUserRegistration = [
     .withMessage("User image is required"),
 ];
 // sign in validation
+const validateUserLogin = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address"),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password should be 6 characters long")
+    .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
+    .withMessage(
+      "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+];
 
 module.exports = { validateUserRegistration };

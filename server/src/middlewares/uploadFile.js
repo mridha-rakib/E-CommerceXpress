@@ -3,7 +3,12 @@ const createError = require("http-errors");
 
 const { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } = require("../config/constants");
 
-const storage = multer.memoryStorage();
+const storage = multer.memoryStorage({
+  filename: function (req, file, cb) {
+    const uniqueFileName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueFileName);
+  },
+});
 
 const fileFilter = (req, file, cb) => {
   if (!file.mimetype.startsWith("image/")) {

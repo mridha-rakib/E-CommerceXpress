@@ -14,6 +14,7 @@ const {
   handleUnbanUserById,
   handleUpdatePassword,
   handleForgetPassword,
+  handleResetPassword,
 } = require("../controllers/userController");
 
 const upload = require("../middlewares/uploadFile");
@@ -46,6 +47,13 @@ userRouter.post(
   validateUserForgetPassword,
   runValidation,
   handleForgetPassword
+);
+
+userRouter.put(
+  "/reset-password",
+  validateUserForgetPassword,
+  runValidation,
+  handleResetPassword
 );
 
 userRouter.put(

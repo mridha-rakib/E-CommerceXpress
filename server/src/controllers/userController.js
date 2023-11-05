@@ -380,42 +380,26 @@ const handleForgetPassword = async (req, res, next) => {
 
 const handleResetPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { token, password } = req.body;
 
-    const userData = await User.findOne({ email: email });
-    if (!userData) {
-      throw createError(
-        404,
-        "Email is incorrect or your email address is not verified, please register first"
-      );
+    const decodedData = jwt.verify(token, jwtResetPasswordKey);
+
+    if (!decodedData) {
+      throw createError(400, "Invalid expired token");
     }
 
-    const token = createJSONWebToken({ email }, jwtResetPasswordKey, "10m");
-
-    const emailData = {
-      email,
-      subject: "Reset password email",
-      html: `
-        <h2> Hello ${userData.name}! </h2>
-        <p> Please click here to 
-          <a href="${clientURL}/api/users/reset-password/${token}" target="_blank"> 
-            reset your password
-          </a>  
-        </p>
-      `,
-    };
-
-    // send email with nodemailer
-    try {
-      await emailWithNodeMailer(emailData);
-    } catch (error) {
-      next(createError(500, "Failed to send reset password email"));
-      return;
-    }
+    const filter = { email: decodedData.email };
+    const update = { password: password };
+    const options = { new: true };
+    const updateUser = await User.findOneAndUpdate(
+      filter,
+      update,
+      options
+    ).select("-password");
 
     return successResponse(res, {
       statusCode: 200,
-      message: `please goto your ${email} for reset your password`,
+      message: "Password reset successfully",
       payload: { token },
     });
   } catch (error) {

@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 const { successResponse } = require("./responseController");
 const { createJSONWebToken } = require("../helper/jsonwebtoken");
-const { jwtAccessKey } = require("../secret");
+const { jwtAccessKey, jwtRefreshKey } = require("../secret");
 
 const handleLogin = async (req, res, next) => {
   try {
@@ -31,11 +31,23 @@ const handleLogin = async (req, res, next) => {
     const accessToken = createJSONWebToken(
       { _id: user._id },
       jwtAccessKey,
+      "1m"
+    );
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    const refreshToken = createJSONWebToken(
+      { _id: user._id },
+      jwtRefreshKey,
       "15m"
     );
 
-    res.cookie("accessToken", accessToken, {
-      maxAge: 15 * 60 * 1000,
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -68,4 +80,37 @@ const handleLogout = async (req, res, next) => {
   }
 };
 
-module.exports = { handleLogin, handleLogout };
+const handleRefreshToken = async (req, res, next) => {
+  try {
+    const oldRefreshToken = req.cookies.refreshToken;
+
+    // verify old refresh token
+    const decodedToken = jwt.verify(oldRefreshToken, jwtRefreshKey);
+
+    if (!decodedToken) {
+      throw createError(401, "Invalid refresh token, please login again");
+    }
+
+    const accessToken = createJSONWebToken(
+      { _id: decodedToken._id },
+      jwtAccessKey,
+      "1m"
+    );
+
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1 * 60 * 1000,
+      httpOnly: true,
+      sameSite: "none",
+    });
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "new access token generated successfully",
+      payload: {},
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { handleLogin, handleLogout, handleRefreshToken };

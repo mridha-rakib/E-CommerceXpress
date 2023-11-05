@@ -10,6 +10,7 @@ const mongodbURL =
 
 const jwtActivationKey = process.env.JWT_ACTIVATION_KEY;
 const jwtAccessKey = process.env.JWT_ACCESS_KEY;
+const jwtRefreshKey = process.env.JWT_REFRESH_KEY;
 const jwtResetPasswordKey = process.env.JWT_RESET_PASSWORD_KEY;
 
 const smtpUsername = process.env.SMTP_USERNAME || "";
@@ -27,4 +28,5 @@ module.exports = {
   smtpPassword,
   clientURL,
   jwtResetPasswordKey,
+  jwtRefreshKey,
 };

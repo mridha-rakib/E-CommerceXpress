@@ -113,4 +113,30 @@ const handleRefreshToken = async (req, res, next) => {
   }
 };
 
-module.exports = { handleLogin, handleLogout, handleRefreshToken };
+const handleProtectedRoute = async (req, res, next) => {
+  try {
+    const accessToken = req.cookies.accessToken;
+
+    // verify old refresh token
+    const decodedToken = jwt.verify(accessToken, jwtAccessKey);
+
+    if (!decodedToken) {
+      throw createError(401, "Invalid access token, please login again");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "protected resources accessed successfully",
+      payload: {},
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  handleLogin,
+  handleLogout,
+  handleRefreshToken,
+  handleProtectedRoute,
+};
